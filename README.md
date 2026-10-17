@@ -33,12 +33,12 @@ All pipelines evaluate performance using rigorous cross-validation, hyperparamet
 
 ```text
 ├── models/
-│   ├── random_forest_pipeline.ipynb
+│   ├── randomforest_pipeline.ipynb
 │   ├── xgboost_pipeline.ipynb
 │   ├── lightgbm_pipeline.ipynb
 │   ├── catboost_pipeline.ipynb
 │   └── resnet_pipeline.ipynb
-├── ments.txt
+├── requirements.txt
 └── README.md
 
 ```
