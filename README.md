@@ -1,297 +1,216 @@
-# ML Pipelines for Predicting Bloodstream Infections
+# Machine learning pipelines for predicting positive blood cultures. 
+
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+DOI:
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Key Features](#key-features)
-    - [Feature Selection (Tree-based Models Only)](#1-feature-selection-tree-based-models-only)
-    - [Reproducibility](#2-reproducibility)
-    - [Imbalanced Data Handling](#3-imbalanced-data-handling)
-    - [Hyperparameter Tuning](#4-hyperparameter-tuning)
-    - [Training Metrics](#5-training-metrics)
-    - [Model Calibration](#6-model-calibration)
-    - [Testing & Evaluation](#7-testing--evaluation)
-3. [Usage / Quick Start](#usage--quick-start)
-4. [Package Requirements](#package-requirements)
-5. [Pipeline Options](#pipeline-options)
-    - [Device](#1-device)
-    - [Train/Test/Validation Split](#2-traintestvalidation-split)
-    - [Feature Weights (Tree-based Models)](#3-feature-weights-some-tree-based-models)
-    - [Feature Selection](#4-feature-selection)
-    - [Plots / Results](#5-plots--results)
-    - [Scoring Metric](#6-scoring-metric)
-    - [SMOTE / Imbalance Handling](#7-smote--imbalance-handling)
-    - [Recommendations & Notes](#8-recommendations--notes)
+2. [Repository Structure](#repository-structure)
+3. [Key Features](#key-features)
+4. [Installation & Requirements](#installation--requirements)
+5. [Usage / Quick Start](#usage--quick-start)
+6. [Interactive Pipeline Options](#interactive-pipeline-options)
+7. [Limitations & Notes](#limitations--notes)
+8. [Citation](#citation)
 
 ---
 
 ## Overview
 
-**5 machine learning pipelines** for predicting bloodstream infections are developed. These pipelines are extensive and designed for research purposes. The pipelines are **5 documents**:
+This repository contains the official machine learning pipelines developed for the prediction of bloodstream infections, as described in the accompanying scientific article: *"[Machine learning pipeline for predicting positive blood cultures using Sysmex hematology data in the emergency department.]"*. 
 
-- **4 tree-based models:** Random Forest, XGBoost, LightGBM, and CatBoost.
- 
-- **1 ResNet neural network model:** It has a similar pipeline structure but does not use feature selection/feature importance scores and has only 1 hyperparameter tuning option.
+The codebase is designed with a  emphasis on **research reproducibility**, extensive metric evaluation, and advanced handling of imbalanced datasets. It consists of **5 standalone Jupyter Notebook pipelines**:
 
-All pipelines provide options for **train/test splits**:  
-- **Train/Test:** 80/20 split  
-- **Train/Test/Validation:** Includes a 12.5% validation set, which can improve model performance.  
+- **4 Tree-based Models:** Random Forest, XGBoost, LightGBM, and CatBoost.
+- **1 Deep Learning Model:** A ResNet-based neural network architecture. (Note: This pipeline shares the same robust evaluation structure but excludes feature selection/importance scoring and utilizes a streamlined hyperparameter tuning approach).
 
-Each pipeline includes:  
-- Saving the final trained model  
-- Extensive metric evaluation on the test set using bootstrapping and no bootstrapping
-- Thresholding analysis on the test set  
-- 5-fold cross-validation metrics during training
+All pipelines evaluate performance using rigorous cross-validation, hyperparameter tuning via Bayesian optimization, threshold analysis, and probability calibration.
 
-#### Key Features of All Models
-- Hyperparameter options are chosen based on research and if they match the current pipeline.  
-- All models work with **CPU and GPU**.  
-- Random state is fixed to 42.  
+---
+
+## Repository Structure
+
+```text
+├── models/
+│   ├── random_forest_pipeline.ipynb
+│   ├── xgboost_pipeline.ipynb
+│   ├── lightgbm_pipeline.ipynb
+│   ├── catboost_pipeline.ipynb
+│   └── resnet_pipeline.ipynb
+├── requirements.txt
+└── README.md
+
+```
+
+*(Note: Please ensure your data is placed in the root or a designated `data/` folder as expected by the notebooks).*
+
+---
 
 ## Key Features
 
 ### 1. Feature Selection (Tree-based Models Only)
 
-The pipelines provide **5 options for feature selection**:
+To identify the most predictive clinical variables, the tree-based pipelines offer 5 interchangeable feature selection methodologies:
 
-1. **RFE (Recursive Feature Elimination)**  
-   - Removes features that contribute least to predictions  
-   - Always deletes a minimum of 2 features  
+* **RFE (Recursive Feature Elimination):** Iteratively removes features that contribute least to predictions (minimum retention of 2 features).
+* **Boruta:** Generates randomized "shadow" features and iteratively removes original features that perform statistically worse than their shadow counterparts.
+* **Lasso (L1 Regularization):** Shrinks less important feature coefficients to exactly zero, effectively removing them (ideal for linear feature relationships).
+* **Tree Importance:** Sequentially removes the top 10 least important features based on inherent node-impurity metrics.
+* **NONE:** Retains the complete feature set.
 
-2. **Boruta**  
-   - Generates shadow features by shuffling values  
-   - Compares feature performance against shadows and deletes underperforming features  
+> *Note: The ResNet model bypasses explicit feature selection, as neural networks inherently perform representation learning across large feature spaces.*
 
-3. **Lasso**  
-   - Best for linear data  
-   - Shrinks feature importance toward 0; features reaching 0 are removed  
-
-4. **Tree Importance**  
-   - Sequentially removes the 10 least important features  
-
-5. **NONE**  
-   - Keeps all features  
-
-> The ResNet model **does not use feature selection** because neural networks handle large feature sets well.
-
----
 ### 2. Reproducibility
 
-All models use a **fixed random state of 42**.  
-- This makes sure that results are **consistent across multiple runs**.  
-- Training the same model multiple times with the same data and configuration will have identical performance metrics.  
+All pipelines enforce a **fixed random state (42)** across data splitting, model initialization, and resampling algorithms to guarantee deterministic and reproducible results across multiple execution runs.
 
 ### 3. Imbalanced Data Handling
 
-All pipelines address class imbalance. Options include:
+Bloodstream infection datasets are typically highly imbalanced. The pipelines natively support multiple intervention strategies:
 
-- **Weights:** Increase importance of the minority class (recommended for tree-based models)  
-- **SMOTE (Synthetic Minority Oversampling Technique):** Creates synthetic minority samples  
-- **Borderline SMOTE:** Adds new samples along feature borders  
-- **ADASYN (Adaptive Synthetic Sampling):** Focuses on hard-to-predict minority samples  
-- **None:** No balancing applied  
+* **Algorithmic Weighting:** Adjusts the cost function to heavily penalize minority class misclassifications (Highly recommended for tree-based models).
+* **SMOTE:** Synthetic Minority Oversampling Technique.
+* **Borderline-SMOTE:** Synthesizes new minority instances near the decision boundary.
+* **ADASYN:** Adaptive Synthetic Sampling, dynamically shifting focus to harder-to-learn minority samples.
+* **SMOTENC:** SMOTE variant designed for datasets with categorical features.
 
-> For ResNet, using oversampling techniques is important to improve minority class predictions.
-> For tree based models use the _weight files and no smote.
-
----
+> *Recommendation: For the ResNet model, explicit oversampling techniques (e.g., SMOTE) are recommended. For tree-based models, utilizing native class weights generally yields superior performance without distorting the data distribution.*
 
 ### 4. Hyperparameter Tuning
 
-**Optuna:** Bayesian optimization package used by all pipelines including ResNet; understands patterns in parameter selection.  
+All pipelines utilize **Optuna** for state-of-the-art Bayesian optimization, allowing the models to efficiently search the hyperparameter space and avoid local minima.
 
-### 5. Training Metrics
+### 5. Training Metrics & Evaluation
 
-During training, pipelines allow optimization using various metrics:
+Models can be optimized and evaluated across a comprehensive suite of metrics:
 
-- **Recall** – Measures how many true positives the model detects.
-- **Precision** – Measures how many predicted positives are actually positive.  
-- **F1 Score** – Harmonic mean of recall and precision.  
-- **F2 Score** – Like F1 but gives more weight to recall. Use when detecting positives is more important than false positives.  
-- **Accuracy** – Percentage of all correct predictions. Useful for balanced datasets; can be misleading in imbalanced datasets.  
-- **Balanced Accuracy** – Average recall per class; good for imbalanced datasets.  
-- **ROC AUC** – Measures model’s ability to distinguish positives from negatives across all thresholds.  
-- **Average Precision (AP)** – Average precision over all recall levels. Good for imbalanced datasets.  
-- **MCC (Matthews Correlation Coefficient)** – Measures the quality of binary classifications including all true/false positives and negatives. Works well with imbalanced datasets.  
-- **Log Loss (Cross-Entropy Loss)** – Measures prediction confidence. Important for **probabilistic outputs**.
+* **Discrimination:** ROC AUC, Average Precision (AP), Accuracy, Balanced Accuracy.
+* **Diagnostic:** Sensitivity (Recall), Specificity, Precision, F1-Score, F2-Score (prioritizing recall).
+* **Statistical:** Matthews Correlation Coefficient (MCC).
+* **Probabilistic:** Log Loss (Cross-Entropy).
 
----
+The final test set evaluation systematically generates **ROC curves**, **Precision-Recall curves**, **SHAP summary plots** (tree-based models), confusion matrices, and threshold optimization analysis (maximizing Youden's J statistic).
 
 ### 6. Model Calibration
 
-All pipelines include **probability calibration**, which improves how well the predicted probabilities match the true likelihood of a positive outcome.  
-
-- Why it matters:  
-  Some models are overconfident or underconfident in their predictions. Calibration adjusts the probabilities so that, for example, a prediction of 0.8 really corresponds to an ~80% chance of being positive.  
-
-- **Calibration Methods:**  
-  1. **Sigmoid (Platt Scaling)**  
-     - Fits a logistic function to map predicted probabilities to true probabilities.  
-     - Works well for small to medium datasets.  
-     - Less likely to overfit.  
-  2. **Isotonic Regression**  
-     - Fits a flexible, non-linear mapping to predicted probabilities.  
-     - Works best for larger datasets.  
-     - Can capture complex probability patterns but may overfit on small datasets.  
-
-> In these pipelines, **sigmoid calibration** is used by default.
+To ensure the outputted probabilities are clinically interpretable (e.g., a prediction of 0.8 accurately reflects an 80% true likelihood of infection), all pipelines implement probability calibration using **Platt Scaling (Sigmoid)** by default.
 
 ---
 
-### 7. Testing & Evaluation
+## Installation & Requirements
 
-The test set evaluation includes:
+This pipeline was developed and validated using **Python 3.11**.
 
-- ROC AUC curve  
-- Precision-Recall curve  
-- Feature importance (tree-based models)  
-- SHAP plots (tree-based models; not available for ResNet)  
-- Predictions for the test set (allowing custom metric calculations)  
-- Confusion matrices  
-- Threshold optimization for maximizing positives/negatives  
+1. Clone this repository:
 
-> Calibration makes that these probabilities are interpretable for further analyses.
 
+2. Create a virtual environment (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+
+```
+
+
+3. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+
+```
+
+
+**Core Dependencies:**
+`numpy` (2.3.5), `pandas` (2.3.3), `scikit-learn` (1.7.2), `imbalanced-learn` (0.14.0), `xgboost` (3.0.2), `lightgbm` (4.6.0), `catboost` (1.2.8), `boruta` (0.4.3), `optuna` (4.6.0), `torch` (2.9.1 - CPU), `matplotlib` (3.10.8), `shap` (0.50.0), `plotly` (6.5.0).
+
+---
 
 ## Usage / Quick Start
 
-To run the pipelines, follow these steps:
+1. Open any of the provided Jupyter Notebooks (e.g., `xgboost_pipeline.ipynb`).
+2. Scroll to the data loading section near the bottom of the notebook:
+```python
+import pandas as pd
 
-1. **Open the Notebook**  
-   Open the Jupyter notebook provided with the pipeline.
+# Update this path to your local dataset
+df = pd.read_csv('training.csv')
 
-2. **Locate the Data Loading Block**  
-   Go to the bottom code blocks in the notebook. You will find something like this:
+# Define your target column
+target_col = 'status'
+feature_columns = [c for c in df.columns if c != target_col]
 
-   ```python
-   import pandas as pd
-
-   df = pd.read_csv('final_training.csv')
-   target_col = 'status'
-   feature_columns = [c for c in df.columns if c != target_col]
-
-### Adjust to Your Data
-
-- Replace `'final_training.csv'` with the location of your dataset.  
-- Update `target_col` to match the column name of your target variable.  
-- Ensure `feature_columns` contains all feature columns you want to use.
-- Make sure that the dataset contains only numerical features (categorical features must be preprocessed). 
-- The target column must be binary (0/1 or equivalent).
-- Missing values should be changed before running the pipeline.
+```
 
 
-### Run All Cells
+3. **Data Prerequisites:**
+* All features must be numerical (categorical data must be one-hot encoded or explicitly handled prior to running).
+* The target column must be binary (`0` for negative, `1` for positive).
+* Missing values (NaNs) must be imputed beforehand.
 
-Execute the entire notebook. It will load the data, preprocess it, and run the pipelines with all configurations.
-Just fill in the options you would like to use in the pop ups.
+
+4. Run all cells (`Cell -> Run All`). The notebook will prompt you interactively to configure the pipeline (see section below).
 
 ---
 
-### Package Requirements
+## Interactive Pipeline Options
 
-This pipeline was developed and tested using **Python 3.11** with the following packages:
+Upon execution, the notebook will present several interactive prompts, allowing you to dynamically configure the experiment without altering the code:
 
-**Data processing & ML:**
-- `numpy` v2.3.5
-- `pandas` v2.3.3
-- `scikit-learn` v1.7.2
-- `imbalanced-learn` v0.14.0
-- `XGBoost` v3.0.2
-- `LightGBM` v4.6.0
-- `CatBoost` v1.2.8
-- `Boruta` v0.4.3
-- `Optuna` v4.6.0
-- `torch` v2.9.1(cpu)
+1. **Device:**
+* `CPU` (Default) or `GPU` (Accelerates training, particularly for ResNet, XGBoost, and CatBoost).
 
-**Data visualization:**
-- `matplotlib` v3.10.8
-- `shap` v0.50.0
-- `plotly` v6.5.0
 
-Note: This pipeline was tested with these specific versions. Other combinations may not work correctly.
+2. **Train/Test/Validation Split:**
+* `none`: Standard 80/20 train/test split.
+* `validation` (Default): 70/10/20 train/validation/test split for stricter early stopping and evaluation.
 
----
 
-## Pipeline Options
+3. **Feature Weights (Tree-based models):**
+* Option to apply algorithmic weights directly to the loss function to counter imbalance.
 
-The pipelines has some interactive options for quick settings. When you run the notebook, you will see prompts allowing you to change things in the pipeline to your preferences.
 
-### 1. Device
-Choose whether to run the model on CPU or GPU:
+4. **Feature Selection:**
+* `NONE` (Default), `RFE`, `BORUTA`, `LASSO`, or `TREE_IMPORTANCE`. Multiple inputs are supported.
 
-**Prompt:** Which device do you want to use? (CPU / GPU) [default: CPU]
 
-- Default: `CPU`  
-- GPU training can speed up ResNet and other models if available.
+5. **Plots / Results:**
+* Choose from `roc`, `pr`, `confusion`, `importance`, `shap`, or `all`.
+
+
+6. **Scoring Metric:**
+* `roc_auc` (Default), `average_precision`, `f2`, `balanced_accuracy`, `mcc`, `f1`, `accuracy`, `logloss`, or `recall`.
+
+
+7. **SMOTE / Imbalance Handling:**
+* `NONE` (Default), `SMOTE`, `BorderlineSMOTE`, `ADASYN`, or `SMOTENC`.
+
 
 ---
 
-### 2. Train/Test/Validation Split
-Choose whether to include a validation set:
+## Limitations & Notes
 
-**Prompt:** Do you want to use a validation set? (none / validation) [default: validation]
-
-- `none`: Train/test split only (80/20)  
-- `validation`: Train/test/validation split with ~12.5% for validation
+* **Binary Classification Only:** This pipeline is strictly engineered for binary classification tasks (e.g., predicting the presence vs. absence of an infection). It does not natively support multi-class target variables.
+* **Pre-processing Requirement:** The pipeline expects structured, pre-processed numerical data. Feature scaling (Standardization) is handled internally by the pipeline.
 
 ---
 
-### 4. Feature Selection
-Select which feature selection methods to use (tree-based models only):
+## Citation
 
-**Prompt:** Which feature selection method? (NONE) [default: NONE]
+If you use this code or pipeline in your research, please cite our corresponding paper:
 
-- Multiple methods can be selected depending on the model used.  
-- Available options: `NONE`, `RFE`, `BORUTA`, `LASSO`, `TREE_IMPORTANCE`  `  
-- ResNet does **not use feature selection**.
+```bibtex
+@article{your_surname2024bloodstream,
+  title={Your Article Title About Bloodstream Infections},
+  author={Your Name and Co-authors},
+  journal={Journal Name},
+  year={2024},
+  volume={xx},
+  pages={xxx-xxx},
+  doi={10.xxxx/xxxxx}
+}
 
----
+```
 
-### 5. Plots / Results
-Choose which evaluation plots to generate:
+Dit ziet er enorm strak uit voor een wetenschappelijke repository! Succes met de publicatie!
 
-**Prompt:** Which results/plots do you want? (roc, pr, confusion, all) [default: roc pr confusion]
-
-- Options: `roc` (ROC curve), `pr` (Precision-Recall curve), `confusion` (Confusion matrix)  
-- `'all'` will include all plots
-
----
-
-### 6. Scoring Metric
-Choose the metric to optimize during training:
-
-**Prompt:** Which scoring metric do you want to use? (roc_auc / average_precision / f2 / balanced_accuracy / mcc / f1 / accuracy / logloss / recall) [default: roc_auc]
-
-- Default: `roc_auc`  
-- Available metrics:  
-  - `roc_auc`
-  - `average_precision`
-  - `f2`
-  - `balanced_accuracy`  
-  - `mcc`
-  - `f1'
-  - `accuracy`
-  - `logloss`
-  - `recall`
-
----
-
-### 7. SMOTE / Imbalance Handling
-Choose which oversampling method(s) to use:
-
-**Prompt:** Which SMOTE version do you want to use? (NONE SMOTE BorderlineSMOTE ADASYN SMOTENC) [default: NONE]
-
-- Default: `NONE` (no oversampling)  
-- Options:  
-  - `SMOTE` synthetic minority oversampling technique
-  - `BorderlineSMOTE` generates samples near class boundaries  
-  - `ADASYN` adaptive oversampling for difficult samples  
-  - `SMOTENC` SMOTE for categorical features  
-
----
-
-> All options are prompted in the notebook. Default values are there, but you can customize them to fit your dataset.
-
-### 8. Notes
-
-**The pipeline only has been test on binary numerical datasets and won't work with multiple classification problems**
-
+```
