@@ -123,6 +123,17 @@ pip install torch==2.9.1+cpu --index-url https://download.pytorch.org/whl/cpu
 
 ```
 
+**Note on PyTorch (CPU vs. GPU):**
+The standard `requirements.txt` installs the default PyTorch version. Depending on your hardware, you might want to customize this:
+
+* **CPU Only:** If you are running on a machine without a dedicated GPU and wish to save disk space, you can optionally install the lightweight CPU-only version:
+```bash
+pip install torch==2.9.1+cpu --index-url [https://download.pytorch.org/whl/cpu](https://download.pytorch.org/whl/cpu)
+
+```
+
+
+* **GPU Acceleration:** If you have a compatible NVIDIA GPU and want to accelerate training (especially beneficial for ResNet, XGBoost, and CatBoost), ensure you install the PyTorch version that matches your CUDA toolkit (e.g., `cu118` or `cu121`). Please refer to the [official PyTorch installation guide](https://pytorch.org/get-started/locally/) to generate the correct installation command for your specific CUDA version.
 
 **Core Dependencies:**
 `numpy` (2.3.5), `pandas` (2.3.3), `scikit-learn` (1.7.2), `imbalanced-learn` (0.14.0), `xgboost` (3.0.2), `lightgbm` (4.6.0), `catboost` (1.2.8), `boruta` (0.4.3), `optuna` (4.6.0), `torch` (2.9.1 - CPU), `matplotlib` (3.10.8), `shap` (0.50.0), `plotly` (6.5.0).
