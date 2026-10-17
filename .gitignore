@@ -1,0 +1,14 @@
+*.csv
+*.xlsx
+data/
+
+venv/
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+
+resnet_sysmex_runs/
+lgc_sysmex_runs/
+xgc_sysmex_runs/
+cat_sysmex_runs/
