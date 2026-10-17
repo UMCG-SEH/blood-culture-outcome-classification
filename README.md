@@ -38,7 +38,7 @@ All pipelines evaluate performance using rigorous cross-validation, hyperparamet
 │   ├── lightgbm_pipeline.ipynb
 │   ├── catboost_pipeline.ipynb
 │   └── resnet_pipeline.ipynb
-├── requirements.txt
+├── ments.txt
 └── README.md
 
 ```
@@ -98,7 +98,7 @@ To ensure the outputted probabilities are clinically interpretable (e.g., a pred
 
 ---
 
-## Installation & Requirements
+## Installation & ments
 
 This pipeline was developed and validated using **Python 3.11**.
 
@@ -116,6 +116,7 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 3. Install the required dependencies:
 ```bash
 pip install -r requirements.txt
+pip install torch==2.9.1+cpu --index-url https://download.pytorch.org/whl/cpu
 
 ```
 
