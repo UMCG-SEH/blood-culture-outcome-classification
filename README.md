@@ -18,7 +18,7 @@ DOI:
 
 ## Overview
 
-This repository contains the official machine learning pipelines developed for the prediction of bloodstream infections, as described in the accompanying scientific article: *"[Machine learning pipeline for predicting positive blood cultures using Sysmex hematology data in the emergency department.]"*. 
+This repository contains the official machine learning pipelines developed for the prediction of bloodstream infections, as described in the accompanying scientific article: *Machine learning pipeline for predicting positive blood cultures using Sysmex hematology data in the emergency department.*. 
 
 The codebase is designed with a  emphasis on **research reproducibility**, extensive metric evaluation, and advanced handling of imbalanced datasets. It consists of **5 standalone Jupyter Notebook pipelines**:
 
@@ -63,7 +63,7 @@ To identify the most predictive clinical variables, the tree-based pipelines off
 
 ### 2. Reproducibility
 
-All pipelines enforce a **fixed random state (42)** across data splitting, model initialization, and resampling algorithms to guarantee deterministic and reproducible results across multiple execution runs.
+All pipelines enforce a **fixed random state (42)** across data splitting, model initialization, and resampling algorithms to support reproducible results across multiple execution runs.
 
 ### 3. Imbalanced Data Handling
 
@@ -75,7 +75,7 @@ Bloodstream infection datasets are typically highly imbalanced. The pipelines na
 * **ADASYN:** Adaptive Synthetic Sampling, dynamically shifting focus to harder-to-learn minority samples.
 * **SMOTENC:** SMOTE variant designed for datasets with categorical features.
 
-> *Recommendation: For the ResNet model, explicit oversampling techniques (e.g., SMOTE) are recommended. For tree-based models, utilizing native class weights generally yields superior performance without distorting the data distribution.*
+> *Note on Imbalance Strategies: The optimal strategy for handling class imbalance is highly dataset-dependent and should be empirically validated. However, as a starting point, explicit oversampling techniques (e.g., SMOTE) are often beneficial for the ResNet model, while native algorithmic class weights frequently provide a strong baseline for tree-based models without distorting the underlying data distribution.*
 
 ### 4. Hyperparameter Tuning
 
@@ -103,7 +103,10 @@ To ensure the outputted probabilities are clinically interpretable (e.g., a pred
 This pipeline was developed and validated using **Python 3.11**.
 
 1. Clone this repository:
-
+```bash
+git clone [https://github.com/UMCG-SEH/blood-culture-outcome-classification.git](https://github.com/UMCG-SEH/blood-culture-outcome-classification.git)
+cd blood-culture-outcome-classification
+```
 
 2. Create a virtual environment (recommended):
 ```bash
