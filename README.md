@@ -210,7 +210,3 @@ If you use this code or pipeline in your research, please cite our corresponding
 }
 
 ```
-
-Dit ziet er enorm strak uit voor een wetenschappelijke repository! Succes met de publicatie!
-
-```
