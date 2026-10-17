@@ -215,10 +215,10 @@ If you use this code or pipeline in your research, please cite our corresponding
 
 ```bibtex
 @article{your_surname2024bloodstream,
-  title={Your Article Title About Bloodstream Infections},
-  author={Your Name and Co-authors},
+  title={Machine learning pipeline for predicting positive blood cultures using Sysmex hematology data in the emergency department. },
+  author={Name and Co-authors},
   journal={Journal Name},
-  year={2024},
+  year={2026},
   volume={xx},
   pages={xxx-xxx},
   doi={10.xxxx/xxxxx}
