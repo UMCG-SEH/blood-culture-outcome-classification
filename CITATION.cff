@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "blood-culture-outcome-classification"
+type: software
+authors:
+  - family-names: "Gommers"
+    given-names: "Jort"
+  - family-names: "McFadden"
+    given-names: "Benjamin R."
+repository-code: "https://github.com/UMCG-SEH/blood-culture-outcome-classification"
+abstract: "Code for a machine learning pipeline that predicts positive blood cultures from Sysmex hematology data in the emergency department."
+license: MIT
+version: 1.0.0
+date-released: 2026-10-19
